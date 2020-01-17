@@ -339,18 +339,27 @@ class BOMItem:
         
     def Output(self, out = None):
         refs = ''
+        
+        def sort_key(item):
+            m = re.match(r"[A-Za-z]+(\d+)", item)
+            if m:
+                return int(m.group(1))
+            else:
+                return 0
+        self.refs.sort(key=sort_key)    # sort 
+
         for r in self.refs:
            refs += r + ','
         if not out:
             out = csv.writer(sys.stdout, lineterminator='\n', delimiter=',', quotechar='\"', quoting=csv.QUOTE_ALL)
-        out.writerow([self.value, self.desc, refs, self.fp, self.libRef, str(self.pincount), str(len(self.refs)), self.partNumber, self.url ])
+        out.writerow([self.value, refs, self.fp, self.desc, self.libRef, str(self.pincount), str(len(self.refs)), self.partNumber, self.url ])
     def AddRef(self, ref):
         self.refs.append(ref)
 
 def OutputBOMHeader(out = None):
     if not out:
         out = csv.writer(sys.stdout, lineterminator='\n', delimiter=',', quotechar='\"', quoting=csv.QUOTE_ALL)
-    out.writerow(['Comment','Description','Designator','Footprint','LibRef','Pins','Quantity','PartNumber','url'])
+    out.writerow(['Comment','Designator','Footprint','Description','LibRef','Pins','Quantity','PartNumber','url'])
 
 def IsModExclude(mod, ExcludeRefs = [], ExcludeValues = []):
     r = mod.GetReference()
